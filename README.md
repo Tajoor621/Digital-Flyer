@@ -1,8 +1,3 @@
----
-title: My Offers
-description: Every deal. Everywhere. Just for you.
----
-
 # My Offers
 
 Every deal. Everywhere. Just for you.
