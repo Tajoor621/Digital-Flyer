@@ -1,0 +1,41 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "My Offers",
+      "hasCanvas": false,
+      "bodyTextLen": 1093,
+      "bodyTextHash": "2d48aba1c5fbaa29453f8103fd5e2c6b06978e36147431a65306cc8fb79d5507",
+      "bodyTextPrefix": "EVENING DEALS Al Murar Within 2 km first Find an item 🥬 Vegetab",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "My Offers",
+      "hasCanvas": false,
+      "bodyTextLen": 1053,
+      "bodyTextHash": "61e44788e2c1e4148a8edc1411d229fdfc11d93b9b3e7f64e614df24363c8865",
+      "bodyTextPrefix": "My Offers — Every deal. Everywhere. Just for you. TODAY'S DEALS ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": true,
+  "baselineReasons": [
+    "desktop: body text changed (824 -> 1093 chars, hash mismatch)",
+    "mobile: body text changed (824 -> 1053 chars, hash mismatch)"
+  ]
+}

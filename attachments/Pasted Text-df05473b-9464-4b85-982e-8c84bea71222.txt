@@ -1,0 +1,371 @@
+Master Prompt: "My Offers" — Grocery Offer Search & Notification App
+
+Role: You are an expert full-stack developer, data engineer, and brand designer. Build a cross-platform mobile app called "My Offers" that aggregates grocery offers from every available online source — store websites, social networks, local groups, and digital flyers — within a user-specified city or precise area. The system must crawl, parse, deduplicate, and index offers so no offer is missed. Users can search manually, receive push notifications for priority items/areas, and see priority items/areas pinned at the top. Additionally, generate a professional app icon using your own image generation capability.
+
+---
+
+0. Brand Identity — "My Offers"
+
+App Name: My Offers
+Tagline: Every deal. Everywhere. Just for you.
+Tone: Trustworthy, modern, friendly, efficient.
+Primary Color Palette:
+
+· Primary: #16A34A (Fresh Green — groceries, savings)
+· Secondary: #F97316 (Warm Orange — offers, urgency)
+· Accent: #0EA5E9 (Sky Blue — trust, tech)
+· Dark: #1E293B (Slate — text, headers)
+· Light: #F8FAFC (Off-white — background)
+
+Typography: Inter or Poppins (headings: Poppins SemiBold; body: Inter Regular)
+
+0.1 App Icon Design (Generate by Yourself)
+
+You must generate a professional app icon using your image generation tool. Requirements:
+
+· Style: Flat, modern, minimal, with subtle depth (soft shadow).
+· Concept: A shopping bag or basket combined with a price tag or location pin, symbolizing "offers near you."
+· Colors: Use the primary green #16A34A as the dominant color, with orange #F97316 as an accent (e.g., the tag or pin).
+· Background: Solid green gradient or clean white with green foreground.
+· Text: Optional — a subtle "My Offers" wordmark is acceptable but the icon must work without text.
+· Format: Provide the icon in the following sizes for Expo:
+  · icon.png — 1024×1024
+  · adaptive-icon.png — 1024×1024 (foreground only, transparent)
+  · splash.png — 1284×2778
+  · favicon.png — 48×48
+· Prompt to use for image generation:
+  "A professional mobile app icon for a grocery deals app named 'My Offers'. Flat minimal design, a green shopping bag merged with an orange location pin and a small price tag. Soft shadow, rounded square, gradient green background (#16A34A to #22C55E), orange accent (#F97316). Clean, modern, iOS/Android style, no text, high detail, 1024x1024."
+
+Save generated assets under mobile/assets/ and reference them in app.json.
+
+---
+
+1. Core Requirements
+
+· Comprehensive data acquisition: Crawl all accessible grocery store websites, social media platforms, local community groups, and digital flyers for the selected city/area.
+· No offer missed: Multi-source crawling, frequent scheduling, fallbacks (APIs, RSS, manual submissions).
+· Location-based search: City or precise area (GPS or manual).
+· Manual search: Filters by item, category, store, price, distance, date, source.
+· Push notifications: Instant alerts for new offers matching user's priority items/areas.
+· Priority items and areas: Pinned to the top of all lists and search results.
+· Most recent first: Sorted by recency with timestamps.
+· Deduplication: Merge identical offers from multiple sources.
+· Admin & moderation: Review, edit, approve crawled offers.
+
+---
+
+2. Data Sources & Crawling Strategy
+
+2.1 Target Sources
+
+· Grocery store websites: Carrefour, Tesco, Walmart, Lulu, Spinneys, and local chains.
+· Social networks:
+  · Facebook: Public pages, groups, Marketplace, local buy/sell groups.
+  · Instagram: Store accounts, hashtags (#grocerydeals, #cityname).
+  · Twitter/X: Store handles, local deal accounts, hashtags.
+  · TikTok: Store accounts, local deal creators.
+  · Telegram/WhatsApp: Public channels/groups (where API allows).
+· Digital flyers & aggregators: Flipp, Reebee, store flyer pages.
+· Local forums & classifieds: Craigslist, Nextdoor, local subreddits.
+· Manual submissions: Users/store owners can submit offers.
+
+2.2 Crawling Architecture
+
+· Crawler microservices: One per source type (web, Facebook, Instagram, etc.).
+· Scheduler: Airflow or Cron (every 15 min social, hourly web).
+· Queue: Redis + Bull (Node) or Celery (Python).
+· Parsers: Extract item, price, discount, store, area, dates, image, source URL.
+· Normalization: Standardize names, categories, currencies, area codes.
+· Deduplication: SHA256 + fuzzy matching (Levenshtein, TF-IDF).
+· Storage: Raw in MongoDB/S3; structured in PostgreSQL.
+· Legal & Ethical: Respect robots.txt, API terms, rate limits; use official APIs; anonymize user data.
+
+2.3 Social Media Integration
+
+· Facebook Graph API: Public pages/groups (with app review).
+· Instagram Graph API: Business accounts and hashtags.
+· Twitter API v2: Filtered stream for keywords + location.
+· TikTok Research API: Public content (if approved).
+· Fallback: Playwright headless browsers for public pages.
+
+---
+
+3. Technical Stack
+
+Layer Technology
+Mobile React Native (Expo), Redux Toolkit, React Navigation, Axios
+Backend API Node.js, Express, Prisma/Sequelize, PostgreSQL
+Crawling Python (Scrapy, Playwright) + Node.js (Puppeteer, Cheerio)
+Queue/Cache Redis, Bull/Celery
+Auth Firebase Authentication
+Push Firebase Cloud Messaging (FCM), Expo Notifications
+Search PostgreSQL full-text search (Elasticsearch optional)
+Storage AWS S3 (images), PostgreSQL (structured), MongoDB (raw)
+DevOps Docker, Docker Compose, GitHub Actions, AWS/GCP
+
+---
+
+4. Data Models (PostgreSQL)
+
+```sql
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  firebase_uid VARCHAR(255) UNIQUE NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  name VARCHAR(255),
+  fcm_token TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE areas (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  city VARCHAR(255) NOT NULL,
+  latitude DECIMAL(9,6),
+  longitude DECIMAL(9,6),
+  radius_km DECIMAL(5,2) DEFAULT 5.0,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE stores (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  address TEXT,
+  latitude DECIMAL(9,6),
+  longitude DECIMAL(9,6),
+  logo_url TEXT,
+  area_id INT REFERENCES areas(id),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE sources (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  type VARCHAR(50) NOT NULL,
+  base_url TEXT,
+  area_id INT REFERENCES areas(id),
+  crawl_frequency_minutes INT DEFAULT 60,
+  last_crawled_at TIMESTAMP,
+  active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE offers (
+  id SERIAL PRIMARY KEY,
+  store_id INT REFERENCES stores(id),
+  area_id INT REFERENCES areas(id),
+  source_id INT REFERENCES sources(id),
+  item_name VARCHAR(255) NOT NULL,
+  category VARCHAR(100),
+  price DECIMAL(10,2),
+  original_price DECIMAL(10,2),
+  discount_percent INT,
+  description TEXT,
+  image_url TEXT,
+  source_url TEXT,
+  start_date DATE,
+  end_date DATE,
+  is_verified BOOLEAN DEFAULT FALSE,
+  dedup_hash VARCHAR(64) UNIQUE,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE priority_items (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  item_name VARCHAR(255) NOT NULL,
+  category VARCHAR(100),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE priority_areas (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  area_id INT REFERENCES areas(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE notification_log (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id),
+  offer_id INT REFERENCES offers(id),
+  sent_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+---
+
+5. API Endpoints (REST)
+
+· Auth: POST /api/auth/register, POST /api/auth/login
+· Users: GET /api/users/me, PUT /api/users/me
+· Areas: GET /api/areas?city=..., GET /api/areas/nearby?lat=...&lng=...&radius=...
+· Offers: GET /api/offers?areaId=...&search=...&category=...&sort=recent, GET /api/offers/priority?userId=..., GET /api/offers/:id, POST /api/offers
+· Priority: POST /api/priority/items, DELETE /api/priority/items/:id, POST /api/priority/areas, DELETE /api/priority/areas/:id
+· Notifications: POST /api/notifications/register-token, POST /api/notifications/test
+· Crawler Admin: GET /api/sources, POST /api/sources, PUT /api/sources/:id, POST /api/crawl/trigger/:sourceId
+
+---
+
+6. Crawling & Aggregation Workflow
+
+1. Scheduler triggers jobs based on crawl_frequency_minutes.
+2. Crawler fetches data via Playwright/Scrapy/APIs with proxy rotation.
+3. Parser extracts and normalizes fields.
+4. Deduplication computes dedup_hash; updates or inserts.
+5. Area mapping via geocoding.
+6. Notification trigger: On new insert, match users and push via FCM/Expo.
+7. Indexing: Update full-text search.
+8. Monitoring: Dashboard for crawl success, errors, and coverage gaps.
+
+---
+
+7. Push Notification Logic
+
+· Trigger: New offer inserted or updated with new price/discount.
+· Matching: item_name matches priority items (fuzzy) OR category matches OR area_id in priority areas.
+· Send: Expo Notifications with user's FCM token.
+· Payload: { title: "New Offer on My Offers!", body: "${item_name} at ${store_name} for ${price}", data: { offerId } }
+· Throttling: Max 1 notification per user per offer; log in notification_log.
+
+---
+
+8. Mobile App Screens
+
+1. Onboarding/Location Setup: City selection or GPS-based area detection.
+2. Home:
+   · Search bar.
+   · Priority Items horizontal scroll (pinned).
+   · Priority Areas chips (pinned).
+   · Recent offers list (cards with store logo, item, price, discount, distance, source badge).
+3. Search: Filters (category, price, distance, store, source, date); Sort (Recent, Priority, Price).
+4. Offer Detail: Full details, map, share, source link.
+5. Priorities: Manage priority items/areas; toggle notifications.
+6. Profile: User info, notification settings, logout.
+7. Bottom Navigation: Home, Search, Priorities, Profile.
+
+---
+
+9. Folder Structure
+
+```
+my-offers/
+├── mobile/                     # React Native (Expo)
+│   ├── assets/
+│   │   ├── icon.png            # 1024x1024 (generated)
+│   │   ├── adaptive-icon.png   # 1024x1024 (generated)
+│   │   ├── splash.png          # 1284x2778 (generated)
+│   │   └── favicon.png         # 48x48 (generated)
+│   ├── src/
+│   │   ├── api/
+│   │   ├── components/
+│   │   ├── screens/
+│   │   ├── navigation/
+│   │   ├── store/
+│   │   ├── utils/
+│   │   └── App.js
+│   ├── app.json                # references icon assets
+│   └── package.json
+├── backend/                    # Node.js + Express
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── middleware/
+│   │   └── index.js
+│   └── package.json
+├── crawlers/                   # Python/Node.js crawlers
+│   ├── web/
+│   ├── facebook/
+│   ├── instagram/
+│   ├── twitter/
+│   ├── flyers/
+│   ├── common/
+│   └── requirements.txt
+├── scheduler/
+├── docker-compose.yml
+└── README.md
+```
+
+---
+
+10. app.json (Expo) — Icon & Splash Config
+
+```json
+{
+  "expo": {
+    "name": "My Offers",
+    "slug": "my-offers",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#16A34A"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#16A34A"
+      },
+      "package": "com.myoffers.app"
+    },
+    "ios": {
+      "bundleIdentifier": "com.myoffers.app",
+      "supportsTablet": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
+```
+
+---
+
+11. Development Phases
+
+1. Setup & Branding: Initialize mobile/backend/crawlers; generate icon + splash.
+2. Core Backend: Models, migrations, CRUD APIs.
+3. Crawler Framework: Base crawler, scheduler, queue.
+4. Source Crawlers: Top 3 store websites + Facebook + Instagram + Twitter.
+5. Deduplication & Normalization.
+6. Mobile Basics: Navigation, location, offer list (mock data).
+7. Search & Filter.
+8. Priority Management.
+9. Push Notifications.
+10. Admin Panel.
+11. Testing & Deployment.
+
+---
+
+12. Instructions for AI
+
+Generate the complete codebase for "My Offers". Provide:
+
+1. Brand assets — Generate the app icon, adaptive icon, splash, and favicon using your image generation tool, following the prompt in Section 0.1. Save under mobile/assets/.
+2. All React Native (Expo) frontend files with the "My Offers" branding applied throughout (colors, fonts, logo usage).
+3. All backend files (Node.js/Express) with PostgreSQL models and migrations.
+4. Crawler microservices (Python Scrapy/Playwright + Node Puppeteer) for websites and social media.
+5. Scheduler and queue setup (Redis + Bull/Celery).
+6. Firebase setup for auth and push notifications.
+7. Docker Compose for local development.
+8. Sample .env files and configuration steps.
+9. A comprehensive README.md with setup and run instructions.
+10. Ensure the system crawls all available websites and social networks so no offer is missed.
+11. Implement deduplication, priority pinning, and push notification logic.
+
+Output order:
+
+1. Generated app icon (image) + brand assets.
+2. Folder structure.
+3. Code for each file (mobile → backend → crawlers → scheduler).
+4. Setup and run instructions.
+
+---
+
+"My Offers" — Every deal. Everywhere. Just for you.

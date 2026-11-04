@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "My Offers",
+      "hasCanvas": false,
+      "bodyTextLen": 824,
+      "bodyTextHash": "a5cac53599a28c60be4f97803452e52ef499f06a84f17f908c947ad15ec7b76e",
+      "bodyTextPrefix": "EVENING DEALS Clifton Within 2 km first Find an item 🥬 Vegetabl",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "My Offers",
+      "hasCanvas": false,
+      "bodyTextLen": 824,
+      "bodyTextHash": "a5cac53599a28c60be4f97803452e52ef499f06a84f17f908c947ad15ec7b76e",
+      "bodyTextPrefix": "EVENING DEALS Clifton Within 2 km first Find an item 🥬 Vegetabl",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}
