@@ -1,0 +1,25 @@
+title: My Offers
+description: Neighbourhood price book for sabzi, milk, meat, and the shops on your street. Every deal. Everywhere. Just for you.
+show_downloads: false
+
+# The introduction is _layouts/default.html, published by Pages from main.
+# There is no root index.html: the shopper app build treats that filename as its shell.
+exclude:
+  - node_modules
+  - package-lock.json
+  - package.json
+  - src
+  - scripts
+  - server
+  - migrations
+  - attachments
+  - AGENTS.md
+  - README.md
+  - eslint.config.mjs
+  - vite.config.ts
+  - tsconfig.json
+  - vercel.json
+  - startup.sh
+  - .grok
+  - .vercel
+  - screenshots/*.json
