@@ -13,9 +13,15 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: APP_NAME },
-      { name: "description", content: "Every deal. Everywhere. Just for you." },
-      { name: "theme-color", content: "#16A34A" },
+      { title: "My Offers — Every deal. Everywhere. Just for you." },
+      {
+        name: "description",
+        content:
+          "Neighbourhood price book for sabzi, milk, meat, rice, and the shops on your street. Every deal. Everywhere. Just for you.",
+      },
+      { name: "application-name", content: APP_NAME },
+      { name: "robots", content: "index, follow" },
+      { name: "theme-color", content: "#15803D" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },

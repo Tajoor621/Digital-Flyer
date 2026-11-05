@@ -6,14 +6,18 @@ My Offers is a neighbourhood price book for the shop you actually use. It puts s
 
 Pick a city or lock GPS. The home screen keeps you inside a radius, ranks neighbourhood chains ahead of big-box shelves, and labels where a price came from.
 
-![My Offers in Clifton: sabzi, meat, and pantry prices within 5 km](screenshots/home-loaded.png)
+**Project site:** [tajoor621.github.io/Digital-Flyer](https://tajoor621.github.io/Digital-Flyer/)
+
+![My Offers in Clifton: morning deals, with tomatoes at Dolmen Mall marked as the closest tag](screenshots/home-loaded.png)
 
 ## What you can do
 
 - Browse today’s prices for vegetables, milk and eggs, meat, bakery, rice and daal, frozen food, drinks, snacks, and household goods.
 - Search the way you ask at the counter — tomato or tamatar, milk or doodh — and filter by distance.
-- Save a priority list and get an alert when a matching offer lands in a pinned neighbourhood.
-- Open a deal, see the store and the source, and share it.
+- Open one deal and see the same item at other nearby shops, cheapest printed tag first.
+- Read a neighbourhood flyer: one sheet of today’s sabzi, milk, and meat tags, ready to print or share.
+- Save a priority list. On the watch screen, each item shows the lowest printed tag already on file. A same-currency sum is a reading, not a checkout.
+- Get an alert when a matching offer lands in a pinned neighbourhood.
 - Submit a price you saw in person. A review queue clears what the community sends in.
 - Step off the grocery run when you want to: free AI tools, vacations, and air tickets sit in a separate For you lane.
 
@@ -40,11 +44,12 @@ Karachi staples can follow the notified sabzi list. Gulf neighbourhoods lean on 
 | --- | --- |
 | Home | Area, radius, category lanes, and the stores closest to you |
 | Search | One item, with filters and distance |
-| Offer | Price, store, source, and share |
-| Priorities | The weekly list you want watched |
+| Offer | Price, store, source, share, and the same item at other shops |
+| Flyer | Today’s neighbourhood sheet |
+| Priorities | The weekly list, plus the lowest tag on file for each watch |
 | Alerts | Matches for that list and for pinned neighbourhoods |
 | Submit and Review | Add a price, then clear the queue |
-| Profile | Sign in, notifications, and saved places |
+| Profile | Sign in, notifications, saved places, and the flyer |
 
 Sign in is optional until you want priorities and alerts kept on your account.
 
@@ -63,7 +68,7 @@ The dev server listens on port 8080.
 | --- | --- |
 | `npm run dev` | Start the app |
 | `npm run build` | Production build and database migrate |
-| `npm test` | Project checks |
+| `npm test` | Project checks, including the shelf-reading tests |
 | `npm run typecheck` | TypeScript |
 | `npm run lint` | ESLint |
 
@@ -73,4 +78,4 @@ React and TanStack Start, Vite, Tailwind CSS, TanStack Query, Better Auth, and P
 
 ## This site
 
-[My Offers on GitHub Pages](https://tajoor621.github.io/MyApp/) is the project home, published from the `main` branch. It is the introduction you are reading. The shopper app runs from the commands above; GitHub Pages does not host that server.
+[My Offers on GitHub Pages](https://tajoor621.github.io/Digital-Flyer/) is the project home. It is the static site in `docs/`, published from `main`. It introduces the product. The shopper app runs from the commands above; GitHub Pages does not host that server.

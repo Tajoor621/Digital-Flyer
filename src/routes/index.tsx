@@ -30,7 +30,12 @@ import {
 import { useOffers } from "@/lib/offers/use-offers";
 import type { Area, Offer } from "@/lib/offers/types";
 
-export const Route = createFileRoute("/")({ component: Home });
+export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [{ title: "Today's deals · My Offers" }],
+  }),
+  component: Home,
+});
 
 function timeOfDayLabel() {
   const h = new Date().getHours();
@@ -155,15 +160,22 @@ function Home() {
       <header className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <img src="/app-icon.png" alt="My Offers" className="size-10 rounded-lg" />
-          <button type="button" onClick={() => setLocOpen(true)} className="text-left">
-            <span className="block text-xs font-medium uppercase tracking-wide text-muted">
-              {greeting}
-            </span>
-            <span className="flex items-center gap-1 font-display text-base font-semibold">
-              {loc.areaName ? loc.areaName : (loc.city ?? "Choose city")}
-              <ChevronDown className="size-4 text-subtle" />
-            </span>
-          </button>
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide text-muted">{greeting}</p>
+            <h1 className="font-display text-base font-semibold">
+              <button
+                type="button"
+                onClick={() => setLocOpen(true)}
+                className="flex items-center gap-1 text-left"
+                aria-haspopup="dialog"
+                aria-expanded={locOpen}
+              >
+                {loc.areaName ? loc.areaName : (loc.city ?? "Choose city")}
+                <ChevronDown className="size-4 text-subtle" aria-hidden />
+                <span className="sr-only">Change area</span>
+              </button>
+            </h1>
+          </div>
         </div>
         <div className="flex items-center gap-1">
           {authReady && user ? (
@@ -183,7 +195,7 @@ function Home() {
           <Link
             to="/notifications"
             className="relative grid size-11 place-items-center rounded-lg hover:bg-surface-2"
-            aria-label="Alerts"
+            aria-label={unread > 0 ? `Alerts, ${unread} unread` : "Alerts"}
           >
             <Bell className="size-5" />
             {unread > 0 ? (
@@ -199,11 +211,16 @@ function Home() {
           onChange={setQ}
           onSubmit={() => navigate({ to: "/search", search: { q } })}
         />
-        <div className="mt-2 flex items-center justify-between text-xs">
+        <div className="mt-2 flex items-center justify-between gap-3 text-xs">
           <span className="text-muted">Within 2 km first</span>
-          <Link to="/search" search={{ mode: "item" }} className="font-medium text-primary">
-            Find an item
-          </Link>
+          <span className="flex gap-3">
+            <Link to="/flyer" className="font-medium text-primary">
+              Today&apos;s flyer
+            </Link>
+            <Link to="/search" search={{ mode: "item" }} className="font-medium text-primary">
+              Find an item
+            </Link>
+          </span>
         </div>
         <SearchChips
           value={q}
@@ -321,6 +338,7 @@ function Home() {
                       if (!area) return;
                       applyArea(area.city, area, area);
                     }}
+                    aria-pressed={on}
                     className={`h-10 shrink-0 rounded-full px-3 text-xs font-medium ${
                       on ? "bg-primary text-primary-fg" : "bg-surface-2 text-fg"
                     }`}
@@ -335,22 +353,31 @@ function Home() {
                 {marketOffers.map((o) => {
                   const href = o.storeWebsite || o.sourceUrl;
                   const km = o.distanceKm == null ? "" : `${o.distanceKm < 0.15 ? "Nearby" : `${o.distanceKm.toFixed(1)} km`}`;
-                  return (
-                    <a
-                      key={o.storeId}
-                      href={href ?? undefined}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface px-3 py-3"
-                    >
+                  const body = (
+                    <>
                       <span className="min-w-0">
                         <span className="block truncate text-sm font-medium">{o.storeName}</span>
                         <span className="block truncate text-xs text-muted">
                           {[o.storeAddress, km].filter(Boolean).join(" · ")}
                         </span>
                       </span>
-                      <span className="shrink-0 text-xs font-medium text-primary">Open</span>
+                      {href ? (
+                        <span className="shrink-0 text-xs font-medium text-primary">
+                          Open<span className="sr-only"> {o.storeName} in a new tab</span>
+                        </span>
+                      ) : null}
+                    </>
+                  );
+                  const rowClass =
+                    "flex items-center justify-between gap-3 rounded-xl border border-border bg-surface px-3 py-3";
+                  return href ? (
+                    <a key={o.storeId} href={href} target="_blank" rel="noreferrer" className={rowClass}>
+                      {body}
                     </a>
+                  ) : (
+                    <div key={o.storeId} className={rowClass}>
+                      {body}
+                    </div>
                   );
                 })}
               </div>

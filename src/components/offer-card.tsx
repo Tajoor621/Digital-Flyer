@@ -59,8 +59,12 @@ export function OfferCard({
             <MapPin className="size-3.5 shrink-0 text-primary" />
             <span className="truncate">{place}</span>
           </p>
-          <h3 className="mt-1 font-display text-lg font-semibold leading-snug">
-            {local.emoji ? <span className="me-1">{local.emoji}</span> : null}
+            <h3 className="mt-1 font-display text-lg font-semibold leading-snug">
+            {local.emoji ? (
+              <span className="me-1" aria-hidden>
+                {local.emoji}
+              </span>
+            ) : null}
             {offer.itemName}
           </h3>
           {local.ur || local.hi ? (
@@ -109,7 +113,11 @@ export function OfferCard({
           </p>
           <div className="mt-1 flex items-start justify-between gap-2">
             <h3 className="font-display text-sm font-semibold leading-snug text-fg">
-              {local.emoji ? <span className="me-1">{local.emoji}</span> : null}
+              {local.emoji ? (
+                <span className="me-1" aria-hidden>
+                  {local.emoji}
+                </span>
+              ) : null}
               {offer.itemName}
             </h3>
             {offer.description?.toLowerCase().includes("bachat") ? (

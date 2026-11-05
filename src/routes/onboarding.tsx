@@ -10,7 +10,10 @@ import { useLocationStore } from "@/lib/location-store";
 import { listAreas, nearbyArea } from "@/lib/offers/queries";
 import type { Area } from "@/lib/offers/types";
 
-export const Route = createFileRoute("/onboarding")({ component: Onboarding });
+export const Route = createFileRoute("/onboarding")({
+  head: () => ({ meta: [{ title: "Choose your city · My Offers" }] }),
+  component: Onboarding,
+});
 
 function Onboarding() {
   const navigate = useNavigate();

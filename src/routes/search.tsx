@@ -28,6 +28,7 @@ export const Route = createFileRoute("/search")({
     q: typeof s.q === "string" ? s.q : undefined,
     mode: s.mode === "item" ? "item" : undefined,
   }),
+  head: () => ({ meta: [{ title: "Search · My Offers" }] }),
   component: SearchPage,
 });
 
@@ -108,9 +109,11 @@ function SearchPage() {
 
   return (
     <main className="px-4 pb-8 pt-5">
-      <div className="mb-3 grid grid-cols-2 rounded-xl bg-surface-2 p-1">
+      <h1 className="sr-only">{itemMode ? "Find an item" : "Nearby deals"}</h1>
+      <div className="mb-3 grid grid-cols-2 rounded-xl bg-surface-2 p-1" role="group" aria-label="Search mode">
         <button
           type="button"
+          aria-pressed={!itemMode}
           onClick={() => setMode("deals")}
           className={cn(
             "h-10 rounded-lg text-sm font-medium",
@@ -121,6 +124,7 @@ function SearchPage() {
         </button>
         <button
           type="button"
+          aria-pressed={itemMode}
           onClick={() => setMode("item")}
           className={cn(
             "h-10 rounded-lg text-sm font-medium",
@@ -158,8 +162,9 @@ function SearchPage() {
             return (
               <button
                 key={s.label}
-                type="button"
-                onClick={() => setQ(active ? "" : s.label)}
+            type="button"
+            aria-pressed={active}
+            onClick={() => setQ(active ? "" : s.label)}
                 className={cn(
                   "flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-3 text-sm",
                   active ? "border-secondary bg-secondary-soft text-pin" : "border-border bg-surface text-fg",
@@ -188,6 +193,7 @@ function SearchPage() {
           <button
             key={s.id}
             type="button"
+            aria-pressed={sort === s.id}
             onClick={() => setSort(s.id)}
             className={`h-9 shrink-0 rounded-full px-3 text-xs font-medium ${
               sort === s.id ? "bg-fg text-bg" : "bg-surface-2 text-muted"
@@ -198,7 +204,7 @@ function SearchPage() {
         ))}
       </div>
 
-      <p className="mt-4 text-xs text-muted">
+      <p className="mt-4 text-xs text-muted" role="status" aria-live="polite">
         {offersQ.isPending
           ? "Searching…"
           : where}

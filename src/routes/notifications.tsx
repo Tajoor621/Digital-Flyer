@@ -9,7 +9,10 @@ import { useHydrated } from "@/lib/use-hydrated";
 import { relativeTime } from "@/lib/offers/format";
 import { listNotifications, markNotificationsRead } from "@/lib/offers/queries";
 
-export const Route = createFileRoute("/notifications")({ component: NotificationsPage });
+export const Route = createFileRoute("/notifications")({
+  head: () => ({ meta: [{ title: "Alerts · My Offers" }] }),
+  component: NotificationsPage,
+});
 
 function NotificationsPage() {
   const { user, isPending } = useCurrentUserState();

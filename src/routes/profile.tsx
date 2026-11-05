@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Bell, CheckCircle2, ClipboardList, Radar } from "lucide-react";
+import { Bell, CheckCircle2, ClipboardList, Newspaper, Radar } from "lucide-react";
 import { toast } from "sonner";
 import { UserButton } from "@/lib/auth/gates";
 import { useCurrentUser, useCurrentUserState } from "@/lib/auth/use-current-user";
@@ -12,7 +12,10 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { relativeTime } from "@/lib/offers/format";
 
-export const Route = createFileRoute("/profile")({ component: ProfilePage });
+export const Route = createFileRoute("/profile")({
+  head: () => ({ meta: [{ title: "You · My Offers" }] }),
+  component: ProfilePage,
+});
 
 function ProfilePage() {
   const { user, isPending } = useCurrentUserState();
@@ -90,23 +93,31 @@ function ProfilePage() {
             <Bell className="size-4" /> Alerts
           </h2>
           <div className="mt-4 flex items-center justify-between gap-3">
-            <div>
+            <div id="notify-label">
               <p className="text-sm font-medium">Notify on new matches</p>
-              <p className="text-xs text-muted">In-app alerts when a scan finds a watch-list hit</p>
+              <p id="notify-hint" className="text-xs text-muted">
+                In-app alerts when a scan finds a watch-list hit
+              </p>
             </div>
             <Switch
               checked={profile?.notifyEnabled ?? true}
               onCheckedChange={(v) => save.mutate({ notifyEnabled: v })}
+              aria-labelledby="notify-label"
+              aria-describedby="notify-hint"
             />
           </div>
           <div className="mt-4 flex items-center justify-between gap-3">
-            <div>
+            <div id="priority-only-label">
               <p className="text-sm font-medium">Priority only</p>
-              <p className="text-xs text-muted">Skip deals that are not on your list or area pins</p>
+              <p id="priority-only-hint" className="text-xs text-muted">
+                Skip deals that are not on your list or area pins
+              </p>
             </div>
             <Switch
               checked={profile?.notifyPriorityOnly ?? true}
               onCheckedChange={(v) => save.mutate({ notifyPriorityOnly: v })}
+              aria-labelledby="priority-only-label"
+              aria-describedby="priority-only-hint"
             />
           </div>
           <Button className="mt-4 w-full" variant="outline" type="button" onClick={enablePush}>
@@ -114,6 +125,19 @@ function ProfilePage() {
           </Button>
         </section>
       ) : null}
+
+      <Link
+        to="/flyer"
+        className="mt-5 flex items-center gap-3 rounded-xl border border-border bg-surface p-4 text-sm font-medium"
+      >
+        <Newspaper className="size-5 text-primary" />
+        <span>
+          Neighbourhood flyer
+          <span className="mt-0.5 block text-xs font-normal text-muted">
+            Today&apos;s sabzi, milk, and meat tags for {loc.areaName ?? loc.city ?? "your area"}
+          </span>
+        </span>
+      </Link>
 
       <section className="mt-5 grid grid-cols-2 gap-2">
         <Link

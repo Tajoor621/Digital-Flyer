@@ -16,6 +16,7 @@ export function CategoryPills({
           <button
             key={c.id}
             type="button"
+            aria-pressed={active}
             onClick={() => onChange(active ? undefined : c.id)}
             className={cn(
               "flex h-10 shrink-0 items-center gap-2 rounded-full border px-3 text-sm font-medium transition-colors duration-150",

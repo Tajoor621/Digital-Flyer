@@ -11,7 +11,10 @@ import { CATEGORIES } from "@/lib/offers/categories";
 import { listStores, submitOffer } from "@/lib/offers/queries";
 import { useLocationStore } from "@/lib/location-store";
 
-export const Route = createFileRoute("/submit")({ component: SubmitPage });
+export const Route = createFileRoute("/submit")({
+  head: () => ({ meta: [{ title: "Submit a price · My Offers" }] }),
+  component: SubmitPage,
+});
 
 function SubmitPage() {
   const { user, isPending } = useCurrentUserState();
@@ -76,57 +79,87 @@ function SubmitPage() {
           submit.mutate();
         }}
       >
-        <Input
-          required
-          value={itemName}
-          onChange={(e) => setItemName(e.target.value)}
-          placeholder="Item name"
-        />
-        <select
-          className="h-11 w-full rounded-lg border border-border bg-surface px-3 text-sm"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
-          {CATEGORIES.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.label}
-            </option>
-          ))}
-        </select>
-        <select
-          required
-          className="h-11 w-full rounded-lg border border-border bg-surface px-3 text-sm"
-          value={storeId}
-          onChange={(e) => setStoreId(e.target.value ? Number(e.target.value) : "")}
-        >
-          <option value="">Store</option>
-          {(storesQ.data ?? []).map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
-        </select>
-        <div className="grid grid-cols-2 gap-2">
+        <label className="block text-sm font-medium">
+          Item
           <Input
+            className="mt-1"
             required
-            inputMode="decimal"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            placeholder="Sale price"
+            value={itemName}
+            onChange={(e) => setItemName(e.target.value)}
+            placeholder="Tomatoes, doodh, chicken"
           />
-          <Input
-            inputMode="decimal"
-            value={original}
-            onChange={(e) => setOriginal(e.target.value)}
-            placeholder="Was"
-          />
+        </label>
+        <label className="block text-sm font-medium">
+          Category
+          <select
+            className="mt-1 h-11 w-full rounded-lg border border-border bg-surface px-3 text-sm"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block text-sm font-medium">
+          Store
+          <select
+            required
+            className="mt-1 h-11 w-full rounded-lg border border-border bg-surface px-3 text-sm"
+            value={storeId}
+            onChange={(e) => setStoreId(e.target.value ? Number(e.target.value) : "")}
+          >
+            <option value="">Choose a store</option>
+            {(storesQ.data ?? []).map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          <label className="block text-sm font-medium">
+            Sale price
+            <Input
+              className="mt-1"
+              required
+              inputMode="decimal"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="85"
+            />
+          </label>
+          <label className="block text-sm font-medium">
+            Was
+            <Input
+              className="mt-1"
+              inputMode="decimal"
+              value={original}
+              onChange={(e) => setOriginal(e.target.value)}
+              placeholder="Optional"
+            />
+          </label>
         </div>
-        <Input value={unit} onChange={(e) => setUnit(e.target.value)} placeholder="Unit — 1kg, 2L…" />
-        <Input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Notes (optional)"
-        />
+        <label className="block text-sm font-medium">
+          Unit
+          <Input
+            className="mt-1"
+            value={unit}
+            onChange={(e) => setUnit(e.target.value)}
+            placeholder="1kg, 2L…"
+          />
+        </label>
+        <label className="block text-sm font-medium">
+          Notes
+          <Input
+            className="mt-1"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Optional"
+          />
+        </label>
         <Button type="submit" className="w-full" disabled={submit.isPending}>
           {submit.isPending ? "Sending…" : "Submit for review"}
         </Button>

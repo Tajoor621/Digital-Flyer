@@ -10,7 +10,10 @@ import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { useHydrated } from "@/lib/use-hydrated";
 import { listPendingOffers, moderateOffer } from "@/lib/offers/queries";
 
-export const Route = createFileRoute("/review")({ component: ReviewPage });
+export const Route = createFileRoute("/review")({
+  head: () => ({ meta: [{ title: "Review queue · My Offers" }] }),
+  component: ReviewPage,
+});
 
 function ReviewPage() {
   const { user, isPending } = useCurrentUserState();

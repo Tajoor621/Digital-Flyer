@@ -11,11 +11,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { categoryLabel, endingLabel, formatMoney, relativeTime } from "@/lib/offers/format";
 import { itemLocal } from "@/lib/offers/search-index";
+import { otherShops } from "@/lib/offers/shelf";
 import { addPriorityItem, getOffer, getOfferPersonalized } from "@/lib/offers/queries";
+import { useOffers } from "@/lib/offers/use-offers";
 import { useLocationStore } from "@/lib/location-store";
+import type { Offer } from "@/lib/offers/types";
 import { formatKm, haversineKm } from "@/lib/utils";
 
-export const Route = createFileRoute("/offers/$id")({ component: OfferDetail });
+export const Route = createFileRoute("/offers/$id")({
+  head: () => ({ meta: [{ title: "Offer · My Offers" }] }),
+  component: OfferDetail,
+});
 
 function OfferDetail() {
   const { id } = Route.useParams();
@@ -39,6 +45,11 @@ function OfferDetail() {
     },
     onError: () => toast.error("Sign in to watch items"),
   });
+
+  const peersQ = useOffers(
+    { search: offerQ.data?.itemName, sort: "price" },
+    Boolean(offerQ.data?.itemName),
+  );
 
   const offer = offerQ.data;
   if (offerQ.isPending) {
@@ -89,7 +100,11 @@ function OfferDetail() {
   return (
     <main className="pb-8">
       <div className="flex items-center gap-1 px-2 pt-3">
-        <Link to="/" className="grid size-11 place-items-center rounded-lg hover:bg-surface-2">
+        <Link
+          to="/"
+          aria-label="Back to home"
+          className="grid size-11 place-items-center rounded-lg hover:bg-surface-2"
+        >
           <ArrowLeft className="size-5" />
         </Link>
         <span className="font-display text-sm font-semibold">Offer</span>
@@ -111,7 +126,11 @@ function OfferDetail() {
               {ending ? <Badge tone="secondary">{ending}</Badge> : null}
             </div>
             <h1 className="mt-3 font-display text-2xl font-semibold leading-tight tracking-tight">
-              {local.emoji ? <span className="me-1.5">{local.emoji}</span> : null}
+              {local.emoji ? (
+                <span className="me-1.5" aria-hidden>
+                  {local.emoji}
+                </span>
+              ) : null}
               {detail.itemName}
             </h1>
             {local.ur || local.hi ? (
@@ -165,6 +184,8 @@ function OfferDetail() {
           </div>
         </div>
 
+        <SameItemShops current={detail} offers={peersQ.data ?? []} pending={peersQ.isPending} />
+
         <div className="mt-4 grid gap-2">
           <Button
             type="button"
@@ -204,5 +225,50 @@ function OfferDetail() {
         </div>
       </div>
     </main>
+  );
+}
+
+function SameItemShops({
+  current,
+  offers,
+  pending,
+}: {
+  current: Offer;
+  offers: Offer[];
+  pending: boolean;
+}) {
+  const shops = otherShops(offers, current).slice(0, 6);
+  if (!pending && shops.length === 0) return null;
+  return (
+    <section className="mt-4 rounded-xl border border-border bg-surface p-4">
+      <h2 className="font-display text-sm font-semibold">Same item nearby</h2>
+      <p className="mt-1 text-xs text-muted">Other printed tags for this item, cheapest first.</p>
+      {pending && shops.length === 0 ? (
+        <p className="mt-3 text-sm text-muted">Checking other shops…</p>
+      ) : (
+        <ul className="mt-2 divide-y divide-border">
+          {shops.map((row) => (
+            <li key={row.id}>
+              <Link
+                to="/offers/$id"
+                params={{ id: String(row.id) }}
+                className="flex items-baseline justify-between gap-3 py-3"
+              >
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-medium">{row.itemName}</span>
+                  <span className="block truncate text-xs text-muted">
+                    {[row.storeName, row.areaName, formatKm(row.distanceKm)].filter(Boolean).join(" · ")}
+                  </span>
+                </span>
+                <span className="shrink-0 font-display text-sm font-semibold tabular-nums text-primary-deep">
+                  {formatMoney(row.price, row.currencySymbol, row.currencyCode, row.unit)}
+                  {row.price < current.price ? <span className="sr-only"> Lower than this tag</span> : null}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

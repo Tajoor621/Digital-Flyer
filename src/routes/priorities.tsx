@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { MapPin, Star, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { EmptyState } from "@/components/empty-state";
@@ -9,6 +9,9 @@ import { RedirectToSignIn } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { useHydrated } from "@/lib/use-hydrated";
 import { SUGGESTED_WATCHES } from "@/lib/offers/categories";
+import { formatMoney } from "@/lib/offers/format";
+import { lowestShelf, shelfReading } from "@/lib/offers/shelf";
+import { useOffers } from "@/lib/offers/use-offers";
 import {
   addPriorityArea,
   addPriorityItem,
@@ -20,7 +23,10 @@ import {
 } from "@/lib/offers/queries";
 import { useLocationStore } from "@/lib/location-store";
 
-export const Route = createFileRoute("/priorities")({ component: PrioritiesPage });
+export const Route = createFileRoute("/priorities")({
+  head: () => ({ meta: [{ title: "Watch list · My Offers" }] }),
+  component: PrioritiesPage,
+});
 
 function PrioritiesPage() {
   const { user, isPending } = useCurrentUserState();
@@ -28,6 +34,7 @@ function PrioritiesPage() {
   const loc = useLocationStore();
   const qc = useQueryClient();
   const [name, setName] = useState("");
+  const offersQ = useOffers({}, Boolean(user));
 
   const itemsQ = useQuery({
     queryKey: ["priority-items", user?.id],
@@ -78,19 +85,25 @@ function PrioritiesPage() {
       </p>
 
       <form
-        className="mt-5 flex gap-2"
+        className="mt-5 flex items-end gap-2"
         onSubmit={(e) => {
           e.preventDefault();
           if (!name.trim()) return;
           addItem.mutate(name.trim());
         }}
       >
-        <Input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="دودھ، چاول، سبزی… or milk, rice"
-          dir="auto"
-        />
+        <div className="min-w-0 flex-1">
+          <label htmlFor="watch-item" className="mb-1 block text-sm font-medium">
+            Add an item
+          </label>
+          <Input
+            id="watch-item"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="دودھ، چاول، سبزی… or milk, rice"
+            dir="auto"
+          />
+        </div>
         <Button type="submit" disabled={addItem.isPending}>
           Add
         </Button>
@@ -139,6 +152,10 @@ function PrioritiesPage() {
         )}
       </section>
 
+      {items.length > 0 ? (
+        <ShelfReading pending={offersQ.isPending} offers={offersQ.data ?? []} watches={items} />
+      ) : null}
+
       <section className="mt-8">
         <h2 className="font-display text-sm font-semibold">Neighbourhoods</h2>
         <p className="mt-1 text-xs text-muted">Pin whole areas so every deal there floats first.</p>
@@ -154,6 +171,7 @@ function PrioritiesPage() {
                   if (watching && row) delArea.mutate(row.id);
                   else addArea.mutate(a.id);
                 }}
+                aria-pressed={watching}
                 className={`inline-flex h-10 items-center gap-1 rounded-full border px-3 text-sm ${
                   watching
                     ? "border-secondary bg-secondary-soft text-pin"
@@ -171,5 +189,66 @@ function PrioritiesPage() {
         ) : null}
       </section>
     </main>
+  );
+}
+
+function ShelfReading({
+  pending,
+  offers,
+  watches,
+}: {
+  pending: boolean;
+  offers: Parameters<typeof lowestShelf>[0];
+  watches: { itemName: string }[];
+}) {
+  const lines = lowestShelf(offers, watches);
+  const reading = shelfReading(lines);
+  return (
+    <section className="mt-8">
+      <h2 className="font-display text-sm font-semibold">Lowest tags</h2>
+      <p className="mt-1 text-xs text-muted">
+        The cheapest printed price already on file for each watch. Shops and units differ, so a sum is a
+        reading, not a bill.
+      </p>
+      {pending ? (
+        <p className="mt-3 text-sm text-muted">Checking nearby tags…</p>
+      ) : (
+        <ul className="mt-2 divide-y divide-border rounded-xl border border-border bg-surface">
+          {lines.map((line) => (
+            <li key={line.itemName} className="flex min-h-14 items-center justify-between gap-3 px-4 py-2">
+              <span className="text-sm font-medium">{line.itemName}</span>
+              {line.offer ? (
+                <Link
+                  to="/offers/$id"
+                  params={{ id: String(line.offer.id) }}
+                  className="text-right text-sm text-primary"
+                >
+                  <span className="block font-semibold tabular-nums">
+                    {formatMoney(
+                      line.offer.price,
+                      line.offer.currencySymbol,
+                      line.offer.currencyCode,
+                      line.offer.unit,
+                    )}
+                  </span>
+                  <span className="block text-xs text-muted">{line.offer.storeName}</span>
+                </Link>
+              ) : (
+                <span className="text-xs text-muted">No printed tag nearby</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {reading ? (
+        <p className="mt-2 text-sm text-muted">
+          Those {reading.count} tags add up to{" "}
+          <span className="font-semibold tabular-nums text-fg">
+            {formatMoney(reading.total, reading.currencySymbol, reading.currencyCode)}
+          </span>
+          .
+        </p>
+      ) : null}
+    </section>
   );
 }

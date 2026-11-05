@@ -1,1 +1,0 @@
-import{a as e}from"./useNavigate-BVBKrbSk.js";import{r as t}from"./utils-z6GTGURP.js";var n=e();function r({className:e}){return(0,n.jsx)(`div`,{className:t(`animate-pulse rounded-lg bg-surface-2`,e)})}export{r as t};

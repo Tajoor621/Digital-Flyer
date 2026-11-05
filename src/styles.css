@@ -9,21 +9,21 @@
   --color-surface-2: #eef3eb;
   --color-fg: #1e293b;
   --color-muted: #5b6b63;
-  --color-subtle: #8a9a92;
-  --color-primary: #16a34a;
+  --color-primary: #15803d;
   --color-primary-fg: #ffffff;
   --color-primary-soft: #dcfce7;
-  --color-primary-deep: #15803d;
-  --color-secondary: #f97316;
+  --color-primary-deep: #166534;
+  --color-secondary: #c2410c;
   --color-secondary-fg: #ffffff;
   --color-secondary-soft: #ffedd5;
-  --color-accent: #0ea5e9;
+  --color-accent: #0369a1;
   --color-accent-fg: #ffffff;
   --color-accent-soft: #e0f2fe;
   --color-border: #dbe4d8;
-  --color-danger: #dc2626;
+  --color-danger: #b91c1c;
   --color-danger-soft: #fee2e2;
-  --color-pin: #b45309;
+  --color-pin: #92400e;
+  --color-subtle: #52685f;
 
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
@@ -79,6 +79,43 @@ body {
 
 .font-display {
   font-family: var(--font-display);
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  z-index: 70;
+  transform: translateY(-200%);
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--color-primary-deep);
+  outline-offset: 2px;
+}
+
+@media print {
+  .app-ambient {
+    background: #fff;
+  }
+
+  nav,
+  .print\:hidden {
+    display: none !important;
+  }
 }
 
 .chain-carrefour { background: #003da5; color: #fff; }

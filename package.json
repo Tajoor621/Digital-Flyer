@@ -1,5 +1,6 @@
 {
-  "name": "app-builder-workspace",
+  "name": "my-offers",
+  "description": "Neighbourhood price book for sabzi, milk, meat, and the shops on your street. Every deal. Everywhere. Just for you.",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -16,7 +17,7 @@
     "preview:stop": "node scripts/preview.mjs stop",
     "typecheck": "tsc --noEmit",
     "check:auth": "node scripts/check-auth-invariant.mjs",
-    "test": "node --test 'scripts/**/*.test.mjs' && node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/app-data/readiness-schedule.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/sign-in-gate.test.ts",
+    "test": "node --test 'scripts/**/*.test.mjs' && node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/app-data/readiness-schedule.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/sign-in-gate.test.ts src/lib/offers/shelf.test.ts",
     "lint": "eslint .",
     "format": "prettier --write ."
   },

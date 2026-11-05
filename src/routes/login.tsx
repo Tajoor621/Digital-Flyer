@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export const Route = createFileRoute("/login")({ component: Login });
+export const Route = createFileRoute("/login")({
+  head: () => ({ meta: [{ title: "Sign in · My Offers" }] }),
+  component: Login,
+});
 
 function Login() {
   const { user, isPending } = useCurrentUserState();
@@ -95,31 +98,53 @@ function Login() {
 
         <form onSubmit={onEmail} className="space-y-3">
           {mode === "up" ? (
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Name"
-              autoComplete="name"
-            />
+            <div>
+              <label htmlFor="login-name" className="mb-1 block text-sm font-medium">
+                Name
+              </label>
+              <Input
+                id="login-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Name"
+                autoComplete="name"
+              />
+            </div>
           ) : null}
-          <Input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            autoComplete="email"
-          />
-          <Input
-            type="password"
-            required
-            minLength={8}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password (8+ characters)"
-            autoComplete={mode === "up" ? "new-password" : "current-password"}
-          />
-          {error ? <p className="text-sm text-danger">{error}</p> : null}
+          <div>
+            <label htmlFor="login-email" className="mb-1 block text-sm font-medium">
+              Email
+            </label>
+            <Input
+              id="login-email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              autoComplete="email"
+            />
+          </div>
+          <div>
+            <label htmlFor="login-password" className="mb-1 block text-sm font-medium">
+              Password
+            </label>
+            <Input
+              id="login-password"
+              type="password"
+              required
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="8+ characters"
+              autoComplete={mode === "up" ? "new-password" : "current-password"}
+            />
+          </div>
+          {error ? (
+            <p className="text-sm text-danger" role="alert">
+              {error}
+            </p>
+          ) : null}
           <Button type="submit" className="w-full" disabled={busy}>
             {busy ? "Please wait…" : mode === "in" ? "Sign in" : "Create account"}
           </Button>
