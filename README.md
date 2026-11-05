@@ -78,4 +78,4 @@ React and TanStack Start, Vite, Tailwind CSS, TanStack Query, Better Auth, and P
 
 ## This site
 
-[My Offers on GitHub Pages](https://tajoor621.github.io/Digital-Flyer/) is the project home. It is the static site in `docs/`, published from `main`. It introduces the product. The shopper app runs from the commands above; GitHub Pages does not host that server.
+[My Offers on GitHub Pages](https://tajoor621.github.io/Digital-Flyer/) is the project home, published from `main`. The page is `_layouts/default.html`. It introduces the product. The shopper app runs from the commands above; GitHub Pages does not host that server.
